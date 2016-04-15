@@ -36,14 +36,26 @@ var Body = React.createClass({
       url: `/api/v1/skills/${skill.id}`,
       type: 'PUT',
       data: { skill: skill },
-      success: () => {
-        console.log('you did it');
-        this.updateSkills(skill);
-        success: () => {
-          this.updateSkills(skill)
-        }
+      success: (skill) => {
+        this.updateSkills(skill)
       }
     });
+  },
+
+  handleLevelChange(action) {
+    var levels  = ['bad', 'halfbad', 'fantastic'];
+    var name    = this.props.skill.name;
+    var details = this.props.skill.details;
+    var level   = this.props.skill.level;
+    var index   = levels.indexOf(level);
+
+    if (action === 'up' && index < 2) {
+      var newLevel = levels[index + 1];
+      this.props.handleUpdate({id: this.props.skill.id, name: name, details: details, level: newLevel})
+    } else if (action === 'down' && index > 0) {
+      var newLevel = levels[index - 1];
+      this.props.handleUpdate({id: this.props.skill.id, name: name, details: details, level: newLevel})
+    }
   },
 
   updateSkills(skill) {

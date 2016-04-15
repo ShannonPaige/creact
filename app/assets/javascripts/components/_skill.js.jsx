@@ -3,29 +3,40 @@ var Skill = React.createClass({
     return { editable: false }
   },
 
-  handleEdit() {
-    if (this.state.editable) {
-      var name    = this.refs.name.value;
-      var details = this.refs.details.value;
-      console.log('in handleEdit', this.state.editable, name, details);
-      this.onUpdate();
-    }
-    this.setState({ editable: !this.state.editable })
-
-  },
-
   onUpdate() {
     if (this.state.editable) {
-      var id      = this.props.skill.id;
-      var name    = this.refs.name.value;
-      var details = this.refs.details.value;
-      var level   = this.props.skill.level;
-
-      var skill = {id: id, name: name, details: details, level: level }
+      let skill   = { id: this.props.skill.id,
+                      name: this.refs.name.value,
+                      details: this.refs.details.value }
 
       this.props.handleUpdate(skill);
     }
+
     this.setState({ editable: !this.state.editable })
+  },
+
+  onUpdateLevel(action) {
+    if (this.canChangeLevel(action)) {
+      let level = this.getNewLevel(action)
+      let skill = {id: this.props.skill.id, level: level }
+
+      this.props.handleUpdate(skill);
+    }
+  },
+
+  canChangeLevel(action) {
+    let levels  = ['bad', 'halfbad', 'fantastic'];
+    let index   = levels.indexOf(this.props.skill.level);
+
+    return action === 'up' && index < 2 ||  action === 'down' && index > 0;
+  },
+
+  getNewLevel(action) {
+    let levels = ['bad', 'halfbad', 'fantastic'];
+    let level  = levels.indexOf(this.props.skill.level);
+    let change = action === 'up' ? 1 : - 1;
+
+    return action ? levels[level + change] : this.props.skill.level;
   },
 
   render() {
@@ -34,7 +45,7 @@ var Skill = React.createClass({
                                             defaultValue={this.props.skill.name} />
                                    : <h3>{this.props.skill.name}</h3>
 
-    var details = this.state.editable ? <textarea type='text'
+    let details = this.state.editable ? <textarea type='text'
                                                   ref='details'
                                                   defaultValue={this.props.skill.details}>
                                         </textarea>
@@ -43,14 +54,29 @@ var Skill = React.createClass({
       <div>
         {name}
 
-        <p><strong>Level:</strong> {this.props.skill.level}</p>
+        <div className='skill-level'>
+          <button type="button"
+                  className="btn btn-default btn-sm"
+                  onClick={this.onUpdateLevel.bind(this, 'down')}>
+            <span className="glyphicon glyphicon-triangle-bottom"></span>
+          </button>
+
+            <p><strong>Level:</strong> {this.props.skill.level}</p>
+
+          <button type="button"
+                  className="btn btn-default btn-sm"
+                  onClick={this.onUpdateLevel.bind(this, 'up')}>
+            <span className="glyphicon glyphicon-triangle-top"></span>
+          </button>
+        </div>
+
         {details}
 
         <button onClick={this.props.handleDelete}>
           Delete
         </button>
 
-        <button onClick={this.handleEdit}>{this.state.editable ? 'Submit' : 'Edit' }</button>
+        <button onClick={this.onUpdate}>{this.state.editable ? 'Submit' : 'Edit' }</button>
       </div>
     )
   }
